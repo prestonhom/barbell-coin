@@ -9,7 +9,7 @@ class Block {
         this.hash = this.calculateHash();
     }
 
-    calculateHash=()=>{
+    calculateHash = () => {
         // calculate the hash function of this block
         return SHA256(this.index + this.previousHash + this.timestamp + JSON.stringify(this.data)).toString();
     }
@@ -29,17 +29,33 @@ class Blockchain {
         return this.chain[this.chain.length - 1]
     }
     addBlock(newBlock) {
-        
+
         newBlock.previousHash = this.getLatestBlock().hash;
         newBlock.hash = newBlock.calculateHash();
         console.log(this.chain)
         this.chain.push(newBlock);
+    }
+    isChainValid() {
+        for (let i = 1; i < this.chain.length; i++) {
+            const currentBlock = this.chain[i]
+            const previousBlock = this.chain[i - 1]
+            if (currentBlock.hash !== currentBlock.calculateHash()) {
+                return false;
+            }
+            if (currentBlock.previousHash !== previousBlock.hash) {
+                return false;
+            }
+        }
+        return true
     }
 }
 
 let barbellCoin = new Blockchain();
 
 barbellCoin.addBlock(new Block(1, "12/8/2019", { amount: 10 }))
-console.log(JSON.stringify(barbellCoin, null, 4))
+console.log('Is Blockchain Valid?', barbellCoin.isChainValid())
+barbellCoin.chain[1].data = { amount: 100};
+console.log('Is Blockchain Valid?', barbellCoin.isChainValid())
+// console.log(JSON.stringify(barbellCoin, null, 4))
 
 
