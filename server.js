@@ -7,11 +7,23 @@ class Block {
         this.data = data;
         this.previousHash = previousHash;
         this.hash = this.calculateHash();
+        this.nonce = 0;
     }
 
     calculateHash = () => {
         // calculate the hash function of this block
-        return SHA256(this.index + this.previousHash + this.timestamp + JSON.stringify(this.data)).toString();
+        return SHA256(this.index + this.previousHash + this.timestamp + JSON.stringify(this.data) + this.nonce).toString();
+    }
+    mineBlock(difficulty) {
+        // check for certain amount of 0's
+        while (this.hash.substring(0, difficulty) !== Array(difficulty + 1).join("0")) {
+            this.nonce++;
+            // increment nonce as long as our hash doesn't with enough 0's
+            this.hash = this.calculateHash()
+
+
+        }
+        console.log("Block mined", this.hash)
     }
 
     // when we create our block we create these parameters
@@ -21,6 +33,7 @@ class Blockchain {
     //constructor responsible for constructing our blockchain
     constructor() {
         this.chain = [this.createGenesisBlock()];
+        this.difficulty = 4
     }
     createGenesisBlock() {
         return new Block(0, "12/08/2019", "Genesis Block", "0")
@@ -31,7 +44,7 @@ class Blockchain {
     addBlock(newBlock) {
 
         newBlock.previousHash = this.getLatestBlock().hash;
-        newBlock.hash = newBlock.calculateHash();
+        newBlock.mineBlock(this.difficulty)
         console.log(this.chain)
         this.chain.push(newBlock);
     }
@@ -52,10 +65,9 @@ class Blockchain {
 
 let barbellCoin = new Blockchain();
 
+console.log('Mining Block 1...');
 barbellCoin.addBlock(new Block(1, "12/8/2019", { amount: 10 }))
-console.log('Is Blockchain Valid?', barbellCoin.isChainValid())
-barbellCoin.chain[1].data = { amount: 100};
-console.log('Is Blockchain Valid?', barbellCoin.isChainValid())
-// console.log(JSON.stringify(barbellCoin, null, 4))
+console.log('Mining block 2...')
+barbellCoin.addBlock(new Block(2, "12/10/2019", { amount: 8 }))
 
 
